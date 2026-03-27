@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Gradient Cube</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f0f0;
+        }
+        .cube {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            transform-style: flat;
+        }
+        /* 正面 */
+        .cube .face-front {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: translate(0, 0);
+        }
+        /* 顶面 */
+        .cube .face-top {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: translate(0, -100%) skewX(-45deg);
+            transform-origin: bottom left;
+        }
+        /* 右侧面 */
+        .cube .face-right {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            transform: translate(100%, 0) skewY(-45deg);
+            transform-origin: top left;
+        }
+        /* 背面 */
+        .cube .face-back {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            transform: translate(0, 200%);
+        }
+        /* 底面 */
+        .cube .face-bottom {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            transform: translate(0, 200%) skewX(-45deg);
+            transform-origin: top left;
+        }
+        /* 左侧面 */
+        .cube .face-left {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+            transform: translate(-100%, 0) skewY(-45deg);
+            transform-origin: top right;
+        }
+    </style>
+</head>
+<body>
+    <div class="cube">
+        <div class="face-front"></div>
+        <div class="face-top"></div>
+        <div class="face-right"></div>
+        <div class="face-back"></div>
+        <div class="face-bottom"></div>
+        <div class="face-left"></div>
+    </div>
+</body>
+</html>
