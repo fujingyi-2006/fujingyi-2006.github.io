@@ -1,0 +1,169 @@
+/* 全局样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "微软雅黑", sans-serif;
+}
+
+body {
+    background: linear-gradient(to bottom, #87CEEB, #E6E6FA);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-container {
+    width: 90%;
+    max-width: 1000px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* 顶部控制栏 */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+/* 游戏面板 3D 视角 */
+.game-board {
+    display: flex;
+    justify-content: space-around;
+    perspective: 1000px;
+    height: 350px;
+    margin: 20px 0;
+}
+
+.peg-container {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+}
+
+/* 柱子样式 */
+.peg {
+    width: 15px;
+    height: 250px;
+    background: linear-gradient(to right, #8B4513, #A0522D, #8B4513);
+    border-radius: 5px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+    position: absolute;
+    bottom: 0;
+}
+
+.disk-stack {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    width: 100%;
+    height: 250px;
+    justify-content: flex-start;
+}
+
+/* 圆盘样式 */
+.disk {
+    border-radius: 8px;
+    height: 25px;
+    margin: 2px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 -2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.disk:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+.disk.selected {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5), 0 0 10px #FFD700;
+}
+
+/* 提示与胜利弹窗 */
+.warning {
+    color: #ff4444;
+    text-align: center;
+    font-weight: bold;
+    height: 20px;
+}
+
+.victory-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    z-index: 100;
+}
+
+.victory-screen.show {
+    display: flex;
+    animation: glowIn 1s infinite alternate;
+}
+
+/* 动画效果 */
+@keyframes shakeWarning {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes glowIn {
+    from { text-shadow: 0 0 10px #FFD700; }
+    to { text-shadow: 0 0 30px #FFD700, 0 0 40px #FFD700; }
+}
+
+@keyframes diskFloat {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0); }
+}
+
+.disk.auto-move {
+    animation: diskFloat 0.5s ease-in-out;
+}

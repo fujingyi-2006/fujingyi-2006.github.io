@@ -1,1 +1,50 @@
-1325642
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D 汉诺塔</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>3D 汉诺塔</h1>
+            <div class="controls">
+                <div class="disk-control">
+                    <label for="diskCount">圆盘数量：</label>
+                    <input type="number" id="diskCount" min="3" max="8" value="5">
+                </div>
+                <div class="move-counter">移动步数：<span id="moveCount">0</span></div>
+                <button id="resetBtn">重新开始</button>
+                <button id="autoSolveBtn">自动解谜</button>
+            </div>
+        </header>
+
+        <div class="warning" id="warningMsg"></div>
+
+        <div class="game-board">
+            <div class="peg-container" data-peg="0">
+                <div class="peg"></div>
+                <div class="disk-stack"></div>
+            </div>
+            <div class="peg-container" data-peg="1">
+                <div class="peg"></div>
+                <div class="disk-stack"></div>
+            </div>
+            <div class="peg-container" data-peg="2">
+                <div class="peg"></div>
+                <div class="disk-stack"></div>
+            </div>
+        </div>
+
+        <div class="victory-screen" id="victoryScreen">
+            <h2>🎉 恭喜通关！🎉</h2>
+            <p>总共移动 <span id="finalMoves"></span> 步</p >
+            <button id="playAgainBtn">再玩一次</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
