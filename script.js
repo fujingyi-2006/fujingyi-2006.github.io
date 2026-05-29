@@ -1,161 +1,157 @@
-// 游戏状态
-const gameState = {
-    diskCount: 5,
-    pegs: [[], [], []],
-    moves: 0,
-    isAutoSolving: false,
-    selectedPegIndex: null,
-    selectedDiskSize: null,
-    diskColors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#FFA07A', '#98D8C8']
-};
-
-// DOM 元素
-const diskCountInput = document.getElementById('diskCount');
-const resetBtn = document.getElementById('resetBtn');
-const autoSolveBtn = document.getElementById('autoSolveBtn');
-const moveCountSpan = document.getElementById('moveCount');
-const warningMsg = document.getElementById('warningMsg');
-const victoryScreen = document.getElementById('victoryScreen');
-const finalMovesSpan = document.getElementById('finalMoves');
-const playAgainBtn = document.getElementById('playAgainBtn');
-const pegContainers = document.querySelectorAll('.peg-container');
-
-// 初始化游戏
-function initGame(diskCount = gameState.diskCount) {
-    gameState.diskCount = diskCount;
-    gameState.pegs = [[], [], []];
-    gameState.moves = 0;
-    gameState.selectedPegIndex = null;
-    gameState.selectedDiskSize = null;
-    gameState.isAutoSolving = false;
-    moveCountSpan.textContent = '0';
-    warningMsg.textContent = '';
-    victoryScreen.classList.remove('show');
-
-    for (let i = diskCount; i >= 1; i--) {
-        gameState.pegs[0].push(i);
+// ========== 汉诺塔游戏类 ==========
+class HanoiGame {
+    constructor(disksCount = 4) {
+        this.disksCount = Math.min(8, Math.max(3, disksCount));
+        this.pegs = [[], [], []];
+        this.moves = 0;
+        this.isAutoSolving = false;
+        this.selectedPeg = null;
+        this.selectedDiskSize = null;
+        this.winFlag = false;
+        this.solveSteps = [];
+        
+        this.initPegs();
     }
-    renderGame();
-}
 
-// 渲染页面
-function renderGame() {
-    pegContainers.forEach((pegContainer, pegIndex) => {
-        const stackEl = pegContainer.querySelector('.disk-stack');
-        stackEl.innerHTML = '';
-        gameState.pegs[pegIndex].forEach((diskSize) => {
-            const diskEl = document.createElement('div');
-            diskEl.classList.add('disk');
-            diskEl.dataset.size = diskSize;
-            diskEl.style.width = `${diskSize * 20 + 40}px`;
-            diskEl.style.backgroundColor = gameState.diskColors[diskSize - 1];
-            stackEl.appendChild(diskEl);
-        });
-    });
-}
-
-// 弹出错误提示
-function showWarning(message) {
-    warningMsg.textContent = message;
-    warningMsg.style.animation = 'none';
-    warningMsg.offsetHeight;
-    warningMsg.style.animation = 'shakeWarning 0.3s, fadeOut 2s forwards';
-}
-
-// 校验移动是否合法
-function isValidMove(fromPeg, toPeg) {
-    const topFrom = gameState.pegs[fromPeg].at(-1);
-    const topTo = gameState.pegs[toPeg].at(-1);
-    if (!topFrom) return false;
-    return !topTo || topFrom < topTo;
-}
-
-// 执行移动
-function executeMove(fromPeg, toPeg) {
-    const disk = gameState.pegs[fromPeg].pop();
-    gameState.pegs[toPeg].push(disk);
-    gameState.moves++;
-    moveCountSpan.textContent = gameState.moves;
-    renderGame();
-}
-
-// 判断是否胜利
-function checkWin() {
-    return gameState.pegs[2].length === gameState.diskCount;
-}
-
-// 点击圆盘处理
-function handleDiskClick(pegIndex, diskSize) {
-    if (gameState.isAutoSolving) return;
-
-    if (gameState.selectedPegIndex === null) {
-        const topDisk = gameState.pegs[pegIndex].at(-1);
-        if (topDisk === diskSize) {
-            gameState.selectedPegIndex = pegIndex;
-            gameState.selectedDiskSize = diskSize;
-            const selectedDisk = document.querySelector(`.peg-container[data-peg="${pegIndex}"] .disk-stack .disk:last-child`);
-            selectedDisk.classList.add('selected');
+    // 初始化圆盘 (所有圆盘在 peg 0)
+    initPegs() {
+        this.pegs = [[], [], []];
+        for (let i = this.disksCount; i >= 1; i--) {
+            this.pegs[0].push(i);
         }
-    } else {
-        const fromPeg = gameState.selectedPegIndex;
-        const toPeg = pegIndex;
+        this.moves = 0;
+        this.winFlag = false;
+        this.selectedPeg = null;
+        this.selectedDiskSize = null;
+        this.updateMoveCounter();
+    }
 
-        if (fromPeg === toPeg) {
-            gameState.selectedPegIndex = null;
-            gameState.selectedDiskSize = null;
-            renderGame();
-            return;
+    // 获取柱子顶部圆盘
+    getTopDisk(pegIdx) {
+        if (this.pegs[pegIdx].length === 0) return Infinity;
+        return this.pegs[pegIdx][this.pegs[pegIdx].length - 1];
+    }
+
+    // 检查移动合法性
+    isValidMove(fromPeg, toPeg) {
+        if (fromPeg === toPeg) return false;
+        if (this.pegs[fromPeg].length === 0) return false;
+        const diskFrom = this.getTopDisk(fromPeg);
+        const diskTo = this.getTopDisk(toPeg);
+        return diskFrom < diskTo;
+    }
+
+    // 执行移动
+    executeMove(fromPeg, toPeg) {
+        if (!this.isValidMove(fromPeg, toPeg)) return false;
+        const disk = this.pegs[fromPeg].pop();
+        this.pegs[toPeg].push(disk);
+        this.moves++;
+        this.updateMoveCounter();
+        return true;
+    }
+
+    // 尝试移动 (外部调用)
+    attemptMove(fromPeg, toPeg) {
+        if (this.isAutoSolving || this.winFlag) {
+            this.showWarning("自动求解中或游戏已胜利，请重置");
+            return false;
         }
+        if (!this.isValidMove(fromPeg, toPeg)) {
+            this.showWarning("❌ 大盘不能放在小盘上！❌", true);
+            return false;
+        }
+        const disk = this.pegs[fromPeg].pop();
+        this.pegs[toPeg].push(disk);
+        this.moves++;
+        this.updateMoveCounter();
+        this.selectedPeg = null;
+        this.selectedDiskSize = null;
+        this.render();
+        this.checkWin();
+        return true;
+    }
 
-        if (isValidMove(fromPeg, toPeg)) {
-            executeMove(fromPeg, toPeg);
-            if (checkWin()) {
-                setTimeout(() => {
-                    finalMovesSpan.textContent = gameState.moves;
-                    victoryScreen.classList.add('show');
-                }, 500);
-            }
+    // 胜利检测
+    checkWin() {
+        if (this.pegs[2].length === this.disksCount && !this.winFlag) {
+            this.winFlag = true;
+            this.showVictoryUI();
+            this.render();
+        }
+    }
+
+    showVictoryUI() {
+        this.showWarning("🎉 胜利！太棒了！ 🎉", false, 2000);
+        const container = document.querySelector('.pegs-container');
+        container.classList.add('victory-glow');
+        setTimeout(() => container.classList.remove('victory-glow'), 1800);
+    }
+
+    showWarning(msg, isError = true, duration = 1200) {
+        const warnDiv = document.getElementById('warningMsg');
+        warnDiv.innerText = msg;
+        if (isError) {
+            warnDiv.style.background = "#b6452e";
+            const container = document.querySelector('.pegs-container');
+            container.classList.add('warning-shake');
+            setTimeout(() => container.classList.remove('warning-shake'), 400);
         } else {
-            showWarning('不能将大圆盘放在小圆盘上！');
+            warnDiv.style.background = "#2c6e2c";
         }
-        gameState.selectedPegIndex = null;
-        gameState.selectedDiskSize = null;
-        renderGame();
+        setTimeout(() => {
+            if (document.getElementById('warningMsg') && !this.isAutoSolving && !this.winFlag) {
+                document.getElementById('warningMsg').innerText = "✨ 点击圆盘 → 点击柱子 ✨";
+                warnDiv.style.background = "#a13e2d";
+            }
+        }, duration);
     }
-}
 
-// 自动解谜
-async function autoSolve() {
-    if (gameState.isAutoSolving) return;
-    gameState.isAutoSolving = true;
-    autoSolveBtn.disabled = true;
-    diskCountInput.disabled = true;
-    resetBtn.disabled = true;
-
-    await solveTower(gameState.diskCount, 0, 2, 1);
-
-    gameState.isAutoSolving = false;
-    autoSolveBtn.disabled = false;
-    diskCountInput.disabled = false;
-    resetBtn.disabled = false;
-
-    if (checkWin()) {
-        finalMovesSpan.textContent = gameState.moves;
-        victoryScreen.classList.add('show');
+    updateMoveCounter() {
+        document.getElementById('moveCount').innerText = this.moves;
     }
-}
 
-// 递归求解汉诺塔
-function solveTower(n, from, to, aux) {
-    return new Promise(async (resolve) => {
+    // 递归生成求解步骤
+    generateSolveSteps(n, from, to, aux, stepsArray) {
         if (n === 1) {
-            await new Promise(r => setTimeout(r, 500));
-            executeMove(from, to);
-            resolve();
+            stepsArray.push({ from, to });
             return;
         }
-        await solveTower(n - 1, from, aux, to);
-        await new Promise(r => setTimeout(r, 500));
-        executeMove(from, to);
-        await solveTower(n - 1, aux, to, from);
-        resolve
+        this.generateSolveSteps(n - 1, from, aux, to, stepsArray);
+        stepsArray.push({ from, to });
+        this.generateSolveSteps(n - 1, aux, to, from, stepsArray);
+    }
+
+    // 开始自动求解
+    startAutoSolve() {
+        if (this.isAutoSolving) return;
+        if (this.winFlag) {
+            this.showWarning("游戏已胜利，按重置后再试", true);
+            return;
+        }
+        this.isAutoSolving = true;
+        this.solveSteps = [];
+        this.generateSolveSteps(this.disksCount, 0, 2, 1, this.solveSteps);
+        
+        document.getElementById('autoSolveBtn').disabled = true;
+        document.getElementById('resetBtn').disabled = true;
+        document.getElementById('diskCountInput').disabled = true;
+        
+        this.selectedPeg = null;
+        this.selectedDiskSize = null;
+        this.render();
+        this.runStepByStep(0);
+    }
+
+    runStepByStep(stepIndex) {
+        if (!this.isAutoSolving) return;
+        if (stepIndex >= this.solveSteps.length) {
+            this.finishAutoSolve();
+            return;
+        }
+        const step = this.solveSteps[stepIndex];
+        if (this.isValidMove(step.from, step.to)) {
+            const diskVal = this.pegs[step.from][this.pegs[step.from].length - 1];
+            this.executeMove(step.from, step.to);
+            this.render();
+            this

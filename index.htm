@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D 汉诺塔 | 点击移动 + 自动求解</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="game-wrapper">
+    <div class="scene">
+        <div class="pegs-container" id="pegsContainer">
+            <!-- 三个柱子由 JS 动态生成 -->
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>🔘 圆盘数:</label>
+            <input type="number" id="diskCountInput" min="3" max="8" value="4" step="1">
+        </div>
+        <button id="resetBtn">🔄 重置</button>
+        <button id="autoSolveBtn">🤖 自动求解</button>
+        <div class="move-counter">📊 步数: <span id="moveCount">0</span></div>
+        <div class="warning-msg" id="warningMsg">✨ 点击圆盘 → 点击柱子 ✨</div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
